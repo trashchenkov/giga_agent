@@ -2,14 +2,24 @@
 set -e
 cd /app
 
-# 1) Сформируем .docker.env из переменных окружения Koyeb
-# (хватает для "Заполнить .docker.env"; при желании можно положить свой шаблон и дополнять его)
+# ждём, пока поднимется докер-демон
+i=0
+until docker info >/dev/null 2>&1; do
+  i=$((i+1))
+  if [ "$i" -gt 60 ]; then
+    echo "Docker daemon didn't start in time" >&2
+    exit 1
+  fi
+  echo "Waiting for Docker daemon..."
+  sleep 2
+done
+
+# .docker.env из переменных окружения сервиса
 printenv > .docker.env
 
-# 2) Повторяем шаги из инструкции репо
-# cp файлов обычно делает make init_files; если в Makefile это уже есть — ок
+# шаги из README
 make init_files
 make build_graph
 
-# 3) Как в README
+# запуск как в инструкции
 exec docker compose up
