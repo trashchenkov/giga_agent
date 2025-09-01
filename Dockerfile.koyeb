@@ -1,10 +1,15 @@
 FROM koyeb/docker-compose
 
-# Устанавливаем зависимости в Alpine
-RUN apk add --no-cache python3 py3-pip make ca-certificates
+# Alpine-пакеты
+RUN apk add --no-cache python3 py3-pip make ca-certificates bash
 
-# CLI langgraph для make build_graph
-RUN pip3 install --no-cache-dir langgraph-cli
+# Отдельное venv для Python-инструментов
+RUN python3 -m venv /opt/venv \
+ && /opt/venv/bin/pip install --upgrade pip \
+ && /opt/venv/bin/pip install --no-cache-dir langgraph-cli
+
+# чтобы 'langgraph' был в PATH
+ENV PATH="/opt/venv/bin:$PATH"
 
 WORKDIR /app
 COPY . /app
@@ -12,5 +17,4 @@ COPY . /app
 COPY ops/koyeb-run.sh /koyeb-run.sh
 RUN chmod +x /koyeb-run.sh
 
-# Базовый entrypoint образа стартует dockerd; затем выполняется наш CMD
 CMD ["/koyeb-run.sh"]
