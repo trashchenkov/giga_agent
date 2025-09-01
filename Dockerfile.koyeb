@@ -1,0 +1,11 @@
+FROM koyeb/docker-compose
+WORKDIR /app
+COPY . /app
+
+# наш стартовый скрипт
+COPY ops/koyeb-run.sh /koyeb-run.sh
+RUN chmod +x /koyeb-run.sh
+
+# важнo: базовый ENTRYPOINT у образа уже запускает docker-daemon,
+# а затем выполняет наш CMD. Поэтому просто укажем свой CMD.
+CMD ["/koyeb-run.sh"]
