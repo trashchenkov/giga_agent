@@ -1,11 +1,9 @@
 FROM koyeb/docker-compose
 
-# Доставим всё нужное для шагов из README
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3 python3-pip make ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+# Устанавливаем зависимости в Alpine
+RUN apk add --no-cache python3 py3-pip make ca-certificates
 
-# CLI для langgraph (нужен для make build_graph)
+# CLI langgraph для make build_graph
 RUN pip3 install --no-cache-dir langgraph-cli
 
 WORKDIR /app
@@ -14,5 +12,5 @@ COPY . /app
 COPY ops/koyeb-run.sh /koyeb-run.sh
 RUN chmod +x /koyeb-run.sh
 
-# В рантайме этот образ сам поднимет dockerd; дальше запускаем наш скрипт
+# Базовый entrypoint образа стартует dockerd; затем выполняется наш CMD
 CMD ["/koyeb-run.sh"]
